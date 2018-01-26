@@ -1,0 +1,206 @@
+function testerInput(notationShop, weightweightUser ){
+    if (notationShop==null || weightweightUser ==null || notationShop.length != weightweightUser .length )
+        throw 'Inputs invalides.';
+
+    var auMoinsUnVraiAvis=false;
+    j=0;
+    while (!auMoinsUnVraiAvis){
+        if (notationShop[j]!=null)
+            auMoinsUnVraiAvis=true;
+        j=j+1;
+    }
+    return auMoinsUnVraiAvis
+}
+
+function initialiserMap(){
+    var map=[]
+    map["null"]=0;
+    for (i = 0; i <=10 ; i++) {
+        map[i]=i-5; //si >5 alors postitive, si =5 alors 0, si <5 alors négative (note médiocre)
+    }
+    return map;
+}
+
+function afficherMap(){
+    console.log("----------------");
+    console.log(map["null"]);
+    for (i=0; i<=10; i++){
+        console.log(map[i]);
+    }
+    console.log("----------------");
+}
+
+
+function swap(items, firstIndex, secondIndex){
+    var temp = items[firstIndex];
+    items[firstIndex] = items[secondIndex];
+    items[secondIndex] = temp;
+}
+
+function partition(items, left, right) {
+
+    var pivot   = items[Math.floor((right + left) / 2)],
+        i       = left,
+        j       = right;
+
+
+    while (i <= j) {
+
+        while (items[i] < pivot) {
+            i++;
+        }
+
+        while (items[j] > pivot) {
+            j--;
+        }
+
+        if (i <= j) {
+            swap(items, i, j);
+            i++;
+            j--;
+        }
+    }
+
+    return i;
+}
+function quickSort(items, left, right) {
+
+    var index;
+
+    if (items.length > 1) {
+
+        index = partition(items, left, right);
+
+        if (left < index - 1) {
+            quickSort(items, left, index - 1);
+        }
+
+        if (index < right) {
+			quickSort(items, index, right);
+        }
+
+    }
+
+    return items;
+}
+//var result = quickSort(items,0,5);
+
+function quicksort_complete(items_basic){
+
+    var items = quickSort(items_basic,0,items_basic.length-1);
+
+	i=0;
+	while (i<items.length && items[i]<0){
+		i++;
+	}
+
+    var reallySortedItems= [];
+    reallySortedItems= items.slice(0,i);
+    reallySortedItems.reverse();
+
+
+    for (j=i; j<items.length; j++){
+    	reallySortedItems[j]=items[j];
+	}
+    //console.log(reallySortedItems);
+	return reallySortedItems;
+}
+
+function calculerNoteMagasin(notationShop, weightweightUser ) {
+
+    var auMoinsUnVraiAvis= testerInput(notationShop, weightweightUser );
+
+    if (auMoinsUnVraiAvis){ //Le notationShop a au moins un avis pr ne pas diviser par zéro
+
+        map= initialiserMap();
+
+        var s=0;
+        var nbAvis= notationShop.length; //represente le nombre d'avis non nulls donnés
+        for (i = 0; i < notationShop.length; i++) {
+            s+=map[notationShop[i]]*weightweightUser [i];
+            if (notationShop[i]==null)
+                nbAvis--;
+        }
+        return (s/nbAvis).toFixed(2);
+    }
+}
+
+function trierMagasinsParUser(notationShop, weightUser){
+
+	var notesMagasin= new Array();
+    for (k=0; k<notationShop.length; k++){
+        notesMagasin[k]= calculerNoteMagasin(notationShop[k], weightUser);
+        //console.log(notesMagasin[k]);
+    }
+
+    var mapMagasins=[];
+    for (p=0; p < notesMagasin.length; p++) {
+        mapMagasins[notesMagasin[p]]=p;
+    }
+
+    res2= quicksort_complete(notesMagasin);
+
+    var res3=[];
+    for (k=0; k<notesMagasin.length; k++){
+        res3[k]=mapMagasins[res2[k]];	//res3 contient les indices des magasins triés par leurs notes
+    }
+    for (k=0; k<notesMagasin.length; k++){
+        console.log("Magasin["+res3[k]+"]: "+res2[k])
+    }
+}
+
+function prob2(notationShop, weightUser){
+    var notesMagasinParMagasin= new Array();
+
+
+
+	for (k=0; k<weightUser.length; k++){
+        var cumul=0;
+
+        for (p=0; p<weightUser[k].length; p++){
+        	cumul+=weightUser[k][p];
+        	//console.log("weightUser[p]: "+weightUser[k][p]+" | "+cumul);
+		}
+		//console.log("cumul="+cumul);
+
+        notesMagasinParMagasin[k]= (calculerNoteMagasin(notationShop, weightUser[k])/cumul).toFixed(2);
+        console.log("Note de l'utilisateur"+k+" : "+notesMagasinParMagasin[k]);
+	}
+}
+
+function main(){
+    try{
+    var notationShop= new Array();
+    notationShop [0] = [4,3,3,0,5,4,6];
+    notationShop [1] = [0,null,2,1,3,4,null];
+    notationShop [2] = [null,null,null,null,6,null,9];
+    notationShop [3] = [3,4,3,2,5,1,4];
+    notationShop [4] = [null,4,3,null,5,0,1];
+    notationShop [5] = [2,2,3,5,5,9,null];
+
+    var weightUser =new Array();
+    weightUser [0] = [1,1,1,1,1,1,1];
+    weightUser [1] = [1,1,2,0,0,0,0];
+    weightUser [2] = [1,0,1,0,1,0,0];
+    weightUser [3] = [0,0,1,1,1,0,4];
+
+    console.log("--------------- Probleme 1 ---------------");
+    for (n=0; n< weightUser.length; n++){
+    	console.log("--- for user "+n+" ---")
+		trierMagasinsParUser(notationShop, weightUser[n]);	//prob1
+	}
+
+	console.log("--------------- Probleme 2 ---------------");
+	for (n=0; n< notationShop.length; n++){
+		console.log("--- for shop "+n+" ---")
+		prob2(notationShop[n], weightUser);
+	}
+
+
+	
+    }catch(e){
+    	console.log(e+'. Veuillez reessayer SVP.')
+    }
+}
+
+main();
